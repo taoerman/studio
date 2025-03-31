@@ -13,6 +13,7 @@ import os
 import subprocess
 import sys
 import time
+from security import safe_command
 
 
 logging.basicConfig()
@@ -86,7 +87,7 @@ def setup_studio():
 
 def run_cmd():
     cmd = sys.argv[1:]
-    sys.exit(subprocess.call(cmd))
+    sys.exit(safe_command.run(subprocess.call, cmd))
 
 
 if __name__ == "__main__":
