@@ -13,6 +13,7 @@ import os
 import subprocess
 import sys
 import time
+from security import safe_requests
 
 
 logging.basicConfig()
@@ -56,7 +57,7 @@ def check_minio_ready(minio_checks=CONNECT_TRIES):
 
         # Catch connection errors, as they will be thrown if minio is not ready
         try:
-            robj = requests.get(url)
+            robj = safe_requests.get(url)
             if robj.status_code == 403:  # what we expect when we have no keys
                 return True
         except requests.exceptions.ConnectionError:

@@ -10,8 +10,6 @@ import sys
 import tempfile
 import zipfile
 from io import BytesIO
-
-import requests
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import transaction
@@ -25,6 +23,7 @@ from contentcuration.api import write_raw_content_to_storage
 from contentcuration.utils.files import create_file_from_contents
 from contentcuration.utils.files import write_base64_to_file
 from contentcuration.utils.garbage_collect import get_deleted_chefs_root
+from security import safe_requests
 
 
 CHANNEL_TABLE = 'content_channelmetadata'
@@ -78,7 +77,7 @@ def import_channel(source_id, target_id=None, download_url=None, editor=None, lo
     conn = None
     try:
         if download_url:
-            response = requests.get('{}/content/databases/{}.sqlite3'.format(download_url, source_id))
+            response = safe_requests.get('{}/content/databases/{}.sqlite3'.format(download_url, source_id))
             for chunk in response:
                 tempf.write(chunk)
         else:
@@ -277,7 +276,7 @@ def download_file(filename, download_url=None, contentnode=None, assessment_item
     # Download file if it hasn't already been downloaded
     if download_url and not default_storage.exists(filepath):
         buffer = BytesIO()
-        response = requests.get('{}/content/storage/{}/{}/{}'.format(download_url, filename[0], filename[1], filename))
+        response = safe_requests.get('{}/content/storage/{}/{}/{}'.format(download_url, filename[0], filename[1], filename))
         for chunk in response:
             buffer.write(chunk)
 
@@ -384,7 +383,7 @@ def create_assessment_items(cursor, contentnode, indent=0, download_url=None):
         try:
             # Store the downloaded zip into temporary storage
             tempf = tempfile.NamedTemporaryFile(suffix='.{}'.format(extension), delete=False)
-            response = requests.get('{}/content/storage/{}/{}/{}'.format(download_url, filename[0], filename[1], filename))
+            response = safe_requests.get('{}/content/storage/{}/{}/{}'.format(download_url, filename[0], filename[1], filename))
             for chunk in response:
                 tempf.write(chunk)
             tempf.close()

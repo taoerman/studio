@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import requests
 from base import BaseProbe
+from security import safe_requests
 
 POSTMARK_SERVICE_STATUS_URL = "https://status.postmarkapp.com/api/1.0/services"
 
@@ -20,7 +20,7 @@ class PostmarkProbe(BaseProbe):
     metric = "postmark_api_latency_msec"
 
     def do_probe(self):
-        r = requests.get(url=POSTMARK_SERVICE_STATUS_URL)
+        r = safe_requests.get(url=POSTMARK_SERVICE_STATUS_URL)
         for service in r.json():
             allowed_statuses = PASSING_POSTMARK_STATUSES.get(service['url'])
             passing = service['status'] in allowed_statuses
